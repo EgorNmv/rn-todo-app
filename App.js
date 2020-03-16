@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Alert } from "react-native";
 import { Navbar } from "./src/components/Navbar";
 import { MainScreen } from "./src/screens/MainScreen";
 import { TodoScreen } from "./src/screens/TodoScreen";
@@ -22,7 +22,37 @@ export default function App() {
   };
 
   const removeTodo = id => {
-    setTodos(prev => prev.filter(todo => todo.id !== id));
+    const todo = todos.find(_todo => _todo.id === id);
+    Alert.alert(
+      "Удаление элемента",
+      `Вы уверены, что хотите удалить "${todo.title}"?`,
+      [
+        {
+          text: "Отмена",
+          style: "cancel"
+        },
+        {
+          text: "Удалить",
+          style: "destructive",
+          onPress: () => {
+            setTodoId(null);
+            setTodos(prev => prev.filter(todo => todo.id !== id));
+          }
+        }
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const updateTodo = (id, title) => {
+    setTodos(prev =>
+      prev.map(todo => {
+        if (todo.id === id) {
+          todo.title = title;
+        }
+        return todo;
+      })
+    );
   };
 
   let content = (
@@ -42,10 +72,12 @@ export default function App() {
     content = (
       <TodoScreen
         // либо байндить с null в TodoScreen на onPress вместо стрелочной функции goBack={setTodoId}
+        onRemove={removeTodo}
         goBack={() => {
           setTodoId(null);
         }}
         todo={selectedTodo}
+        onSave={updateTodo}
       />
     );
   }
